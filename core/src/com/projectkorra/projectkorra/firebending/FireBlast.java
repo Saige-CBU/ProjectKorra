@@ -7,6 +7,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.projectkorra.projectkorra.attribute.markers.DayNightFactor;
 import com.projectkorra.projectkorra.region.RegionProtection;
+import me.saigedo.narutosystem.chakra.ChakraManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -33,6 +35,9 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.waterbending.plant.PlantRegrowth;
+
+import me.saigedo.narutosystem.NarutoSystems;
+
 
 public class FireBlast extends FireAbility {
 
@@ -66,6 +71,9 @@ public class FireBlast extends FireAbility {
 	private Location origin;
 	private Vector direction;
 	private List<Block> safeBlocks;
+    // Chakra integration
+    private double chakraCost = 20.0; // how much chakra it uses
+    private NarutoSystems plugin; // reference to your NarutoSystems plugin
 
 	public FireBlast(final Location location, final Vector direction, final Player player, final double damage, final List<Block> safeBlocks) {
 		super(player);
@@ -73,8 +81,25 @@ public class FireBlast extends FireAbility {
 		if (location.getBlock().isLiquid()) {
 			return;
 		}
+        NarutoSystems naruto = (NarutoSystems) Bukkit.getPluginManager().getPlugin("NarutoSystems");
+        if (naruto == null) {
+            player.sendMessage("NarutoSystems plugin not found!");
+            return;
+        }
 
-		this.setFields();
+    // Get the player's ChakraManager
+        ChakraManager cm = naruto.getChakraManager();
+
+    // Check if player has enough chakra
+        if (!cm.hasEnoughChakra(player, chakraCost)) {
+            player.sendMessage("You do not have enough chakra!");
+            return; // cancel ability
+        }
+
+        // Deduct chakra
+        cm.spendChakra(player, chakraCost);
+
+        this.setFields();
 		this.safeBlocks = safeBlocks;
 		this.damage = damage;
 		this.location = location.clone();
