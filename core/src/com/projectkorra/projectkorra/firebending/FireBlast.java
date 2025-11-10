@@ -96,8 +96,9 @@ public class FireBlast extends FireAbility {
             return; // cancel ability
         }
 
-        // Deduct chakra
+        player.sendMessage("Chakra before: " + cm.getChakra(player));
         cm.spendChakra(player, chakraCost);
+        player.sendMessage("Chakra after: " + cm.getChakra(player));
 
         this.setFields();
 		this.safeBlocks = safeBlocks;
